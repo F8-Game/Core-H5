@@ -1,4 +1,8 @@
 'use strict'
+const path = require('path')
+function resolve(dir) {
+  return path.join(__dirname, dir)
+}
 
 const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 process.env.VUE_APP_TITLE = '封神'
@@ -18,7 +22,15 @@ module.exports = {
     }
     // before: require('./mock/mock-server.js')
   },
-  chainWebpack: config => { },
+  chainWebpack: config => {
+    config.resolve.alias
+      .set('@assets', resolve('src/assets'))
+      .set('@components', resolve('src/components'))
+      .set('@views', resolve('src/views'))
+      .set('@models', resolve('src/models'))
+      .set('@router', resolve('src/router'))
+      .set('@store', resolve('src/store'))
+  },
   configureWebpack: config => {
     config.optimization = {
       splitChunks: {
