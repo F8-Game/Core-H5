@@ -1,13 +1,11 @@
 'use strict'
-
 const path = require('path')
-
-const port = process.env.port || process.env.npm_config_port || 9527 // dev port
-process.env.VUE_APP_TITLE = '封神'
-
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
+
+const port = process.env.port || process.env.npm_config_port || 9527 // dev port
+process.env.VUE_APP_TITLE = '封神'
 
 module.exports = {
   publicPath: '/',
@@ -22,12 +20,49 @@ module.exports = {
       warnings: false,
       errors: true
     }
+    // before: require('./mock/mock-server.js')
   },
-  configureWebpack: {
-    name: '封神',
-    resolve: {
-      alias: {
-        '@': resolve('src')
+  chainWebpack: config => {
+    config.resolve.alias
+      .set('@assets', resolve('src/assets'))
+      .set('@components', resolve('src/components'))
+      .set('@views', resolve('src/views'))
+      .set('@models', resolve('src/models'))
+      .set('@router', resolve('src/router'))
+      .set('@store', resolve('src/store'))
+  },
+  configureWebpack: config => {
+    config.optimization = {
+      splitChunks: {
+        cacheGroups: {
+          vendor: {
+            chunks: 'all',
+            test: /node_modules/,
+            name: 'vendor',
+            minChunks: 1,
+            maxInitialRequests: 5,
+            minSize: 0,
+            priority: 100
+          },
+          common: {
+            chunks: 'all',
+            test: /[\\/]src[\\/]js[\\/]/,
+            name: 'common',
+            minChunks: 2,
+            maxInitialRequests: 5,
+            minSize: 0,
+            priority: 60
+          },
+          styles: {
+            name: 'styles',
+            test: /\.(le|c)ss$/,
+            chunks: 'all',
+            enforce: true
+          },
+          runtimeChunk: {
+            name: 'manifest'
+          }
+        }
       }
     }
   }
