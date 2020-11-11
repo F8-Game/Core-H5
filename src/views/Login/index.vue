@@ -28,16 +28,22 @@
 import { defineComponent, reactive } from 'vue'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { login } from '@/api/user'
-
+import { setToken } from '@/util/auth'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   setup() {
     const loginData = reactive({
       username: '封andy为土地公',
       password: '123456'
     })
+    const router = useRouter()
     const loginStatus = () => {
       login(loginData).then(res => {
-        console.log(res)
+        setToken(res.data.token)
+        router.push({
+          name: 'Main'
+        })
+        // console.log(res)
       })
     }
     return {

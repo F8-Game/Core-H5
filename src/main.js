@@ -7,6 +7,7 @@ import { Button, Form, Input } from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
 import 'normalize.css/normalize.css'
+import './permission'
 
 const app = createApp(App)
 
