@@ -42,7 +42,10 @@ export default defineComponent({
       padding: 15px;
     }
     .detail{
-
+      padding: 10px 0;
+      line-height: 25px;
+      font-size: 18px;
+      font-weight: 500;
     }
   }
 }
