@@ -1,6 +1,8 @@
 <template>
   <div class="header">{{header}}</div>
-  <router-view />
+  <div class="content">
+    <router-view />
+  </div>
 </template>
 
 <script>
@@ -21,5 +23,8 @@ export default defineComponent({
   width: 100%;
   height: 30px;
   border-bottom: 1px solid #ccc;
+}
+.content{
+  padding: 0 40px;
 }
 </style>
