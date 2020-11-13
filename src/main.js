@@ -7,6 +7,7 @@ import { Button, Form, Input, Row, Col, Menu, Dropdown, Tabs, Select } from 'ant
 import 'ant-design-vue/dist/antd.css'
 
 import 'normalize.css/normalize.css'
+import './style/global.less'
 import './permission'
 
 const app = createApp(App)
