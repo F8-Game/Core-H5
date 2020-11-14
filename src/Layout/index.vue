@@ -17,7 +17,6 @@ export default defineComponent({
   }
 })
 </script>
-
 <style lang="less" scoped>
 .header{
   width: 100%;

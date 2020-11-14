@@ -8,7 +8,7 @@
     <a-col :span='19' offset='1'>
       <a-tabs v-model:activeKey="firstDefTab" style="height: 500px">
         <a-tab-pane :tab="item.name" v-for="item in levalFirst" :key="item.id">
-          Content of Tab Pane 1
+          <scene />
         </a-tab-pane>
       </a-tabs>
       <a-tabs v-model:activeKey="secondDefTab" class="secTab">
@@ -24,6 +24,7 @@
 import { defineComponent, ref } from 'vue'
 import user from '@components/User'
 import msg from '@components/Message'
+import scene from '@components/scene'
 
 export default defineComponent({
   setup() {
@@ -86,7 +87,8 @@ export default defineComponent({
   },
   components: {
     user,
-    msg
+    msg,
+    scene
   }
 })
 </script>
