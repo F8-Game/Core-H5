@@ -3,7 +3,7 @@
     <div class="info-box">
       <img src="../../assets/user.jpg" class="ava">
       <div class="detail">
-        <div>安迪的佚名</div>
+        <div>安迪の铁名</div>
         <div>上古大仙</div>
         <div>
           银币: 135135

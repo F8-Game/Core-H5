@@ -1,7 +1,7 @@
 <template>
   <a-row>
     <a-col :span='4'>
-      <img src="../../assets/logo.jpg" class="logo">
+      <img src="../../assets/logo.png" class="logo">
       <user />
       <msg />
     </a-col>
