@@ -1,6 +1,6 @@
 <template>
   <div class="login-box">
-    <div class="title">神界</div>
+    <div class="title">无尽封神</div>
     <a-form layout="vertical" :model="loginData" class="login">
       <a-form-item label='帐号'>
         <a-input v-model:value="loginData.username" placeholder="Username">

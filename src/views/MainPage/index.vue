@@ -5,8 +5,8 @@
       <user />
       <msg />
     </a-col>
-    <a-col :span='19' offset='1'>
-      <a-tabs v-model:activeKey="firstDefTab" style="height: 500px">
+    <a-col :span='13' offset='1'>
+      <a-tabs v-model:activeKey="firstDefTab" style="height: 350px">
         <a-tab-pane :tab="item.name" v-for="item in levalFirst" :key="item.id">
           <scene />
         </a-tab-pane>
@@ -16,6 +16,9 @@
           Content of Tab Pane 1
         </a-tab-pane>
       </a-tabs>
+    </a-col>
+    <a-col :span='5' offset='1'>
+      Content
     </a-col>
   </a-row>
 </template>

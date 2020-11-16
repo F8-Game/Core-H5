@@ -33,7 +33,7 @@
 <script>
 import man from './man.vue'
 import { defineComponent } from 'vue'
-let existNum = []
+// const existNum = []
 export default defineComponent({
   components: { man },
   setup() {
