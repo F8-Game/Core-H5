@@ -1,5 +1,6 @@
 <template>
-  <div class="man"
+  <div
+    class="man"
     :style="{
       animationDelay: `${randomNum(0, 6) / 10}s`,
       animationDuration: `${1 * (hpPercent + .5)}s`
@@ -34,10 +35,10 @@ export default defineComponent({
     }
   },
   computed: {
-    hpPercent () {
+    hpPercent() {
       return this.hp / this.hp_total
     },
-    mpPercent () {
+    mpPercent() {
       return this.mp / this.mp_total
     }
   }

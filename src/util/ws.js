@@ -11,11 +11,17 @@ const JS_WS_CLIENT_VERSION = '0.0.1'
 const RES_OK = 200 // 成功
 // const RES_FAIL = 500 // 失败
 const RES_OLD_CLIENT = 501 // 客户端版本不符
-const gapThreshold = 100 // heartbeat gap threashold
+
+// 心跳相关
+let heartbeatInterval = 3000 // 间隔
+let heartbeatId = null // 心跳定时器
+
+// 主实例
+let socket = null
 
 export default class WS {
-  constructor(url = 'ws://119.3.236.163:8081') {
-    const socket = new WebSocket(url)
+  constructor(url) {
+    const instance = new WebSocket(url)
     const bindEvents = {
       open: this.onOpen,
       message: this.onMessage,
@@ -24,30 +30,23 @@ export default class WS {
     }
 
     Object.keys(bindEvents).map((enevtName) => {
-      socket.addEventListener(enevtName, (event) => {
+      instance.addEventListener(enevtName, (event) => {
         bindEvents[enevtName].call(this, event)
       })
     })
 
-    socket.binaryType = 'arraybuffer'
-    this.socket = socket
+    instance.binaryType = 'arraybuffer'
+    socket = instance
   }
+  isReady = false
 
   // 消息处理分发
   messageHandlers = {
-    [`${Package.TYPE_HANDSHAKE}`]: () => this.onHandshake(),
-    [`${Package.TYPE_HEARTBEAT}`]: () => this.onHeartbeat(),
-    [`${Package.TYPE_DATA}`]: () => this.onData(),
-    [`${Package.TYPE_KICK}`]: () => this.onKick()
+    [`${Package.TYPE_HANDSHAKE}`]: this.onHandshake,
+    [`${Package.TYPE_HEARTBEAT}`]: this.onHeartbeat,
+    [`${Package.TYPE_DATA}`]: this.onData,
+    [`${Package.TYPE_KICK}`]: this.onKick
   }
-  // 心跳相关
-  heartbeatInterval = 3000 // 间隔
-  heartbeatId = null // 心跳定时器
-  heartbeatTimeoutId = null // 超时定时器
-  heartbeatTimeout = 30000 // 超时时间
-
-  // ws主对象
-  socket = null
 
   /**
   * WebSocket 建立连接的回调
@@ -68,12 +67,7 @@ export default class WS {
       console.log('onMessage', messages)
     }
     // 根据事件类型分发到对应的处理程序
-    this.messageHandlers[messages.type](messages.body)
-
-    // 重新计算心跳包时间
-    if (this.heartbeatTimeout) {
-      this.nextHeartbeatTimeout = Date.now() + this.heartbeatTimeout
-    }
+    this.messageHandlers[messages.type].call(this, messages.body)
   }
 
   /**
@@ -97,7 +91,7 @@ export default class WS {
   * @param {object} data
   * @param {string} type
   */
-  async sendMessage(data, route, cb) {
+  sendMessage(data, route, cb) {
     // 分析参数
     if (arguments.length === 2 && typeof route === 'function') {
       cb = route
@@ -105,14 +99,41 @@ export default class WS {
     }
 
     // 封包消息
-    const bytes = Protocol.strencode(JSON.stringify(data))
-    const pkg_type = Package.TYPE_HANDSHAKE
+    let bytes = Protocol.strencode(JSON.stringify(data))
+    let pkg_type = Package.TYPE_HANDSHAKE
+    let routeId = null
+
+    // 分析路由情况
+    if (typeof route === 'string') {
+      // 是否压缩路由 (存在 Dict 的就压缩)
+      let compressRoute = 0
+      if (this.dict && this.dict[route]) {
+        routeId = this.dict[route]
+        compressRoute = 1
+      }
+
+      // 然后生成 Message
+      const reqId = this.reqId++ % 255
+      const type = reqId ? Message.TYPE_REQUEST : Message.TYPE_NOTIFY
+
+      // // 设置回调
+      // if ('function' == typeof cb || 'string' == typeof cb) {
+      //     this.callbacks[reqId] = cb;
+      // }
+
+      // // 设置回调路由表
+      // this.callRoutes[reqId] = route;
+
+      // 将消息打包
+      bytes = Message.encode(reqId, type, compressRoute, compressRoute ? routeId : route, bytes)
+      pkg_type = Package.TYPE_DATA
+    }
 
     // 封装到最终格式
     const packet = Package.encode(pkg_type, bytes)
 
     // 发出封包 这里应该有发送失败的处理
-    this.socket.send(packet)
+    socket.send(packet)
   }
 
   /**
@@ -152,14 +173,16 @@ export default class WS {
       // 保存心跳时间
       if (data.sys && data.sys.heartbeat) {
         // 超时信息
-        this.heartbeatInterval = data.sys.heartbeat * 1000
-        this.heartbeatTimeout = this.heartbeatInterval * 2
+        heartbeatInterval = data.sys.heartbeat * 1000
       }
     }
 
     // 要发送握手回复
     const packet = Package.encode(Package.TYPE_HANDSHAKE_ACK)
-    this.socket.send(packet)
+    socket.send(packet)
+
+    // 标记已经准备好，可以开始接口调用
+    this.isReady = true
   }
 
   /**
@@ -168,36 +191,16 @@ export default class WS {
   onHeartbeat() {
     console.log('heartbeat', Date.now())
 
-    if (this.heartbeatTimeoutId) {
-      clearTimeout(this.heartbeatTimeoutId)
-      this.heartbeatTimeoutId = null
-    }
-
     // already in a heartbeat interval
-    if (this.heartbeatId) {
+    if (heartbeatId) {
       return
     }
 
-    this.heartbeatId = setTimeout(() => {
-      this.heartbeatId = null
+    heartbeatId = setTimeout(() => {
+      heartbeatId = null
       const packet = Package.encode(Package.TYPE_HEARTBEAT)
-      this.socket.send(packet)
-
-      this.nextHeartbeatTimeout = Date.now() + this.heartbeatTimeout
-      this.heartbeatTimeoutId = setTimeout(this.heartbeatTimeoutCb, this.heartbeatTimeout)
-    }, this.heartbeatInterval)
-  }
-
-  /**
-  * 心跳超时的回调
-  */
-  heartbeatTimeoutCb() {
-    const gap = this.nextHeartbeatTimeout - Date.now()
-    if (gap > gapThreshold) {
-      this.heartbeatTimeoutId = setTimeout(this.heartbeatTimeoutCb, gap)
-    } else {
-      console.error('server heartbeat timeout')
-    }
+      socket.send(packet)
+    }, heartbeatInterval)
   }
 
   /**
@@ -205,16 +208,10 @@ export default class WS {
   * @param {*} data
   */
   onData(data) {
+    // 解码
     const msg = Message.decode(data)
-
-    // 从发包请求中取回 Route
-    if (!msg.route && msg.id && this.callRoutes[msg.id]) {
-      msg.route = this.callRoutes[msg.id]
-    }
-
-    // 解码 Body
     msg.body = JSON.parse(Protocol.strdecode(msg.body))
-    console.log(msg)
+    // TODO 回调处理
   }
 
   /**
