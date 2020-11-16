@@ -7,7 +7,7 @@ class UserSkill_Filed_CN_Map extends Ability {
 * author Luo
 * 2020-11-10
 */
-export default class UserSkill extends UUserSkill_Filed_CN_Map {
+export default class UserSkill extends UserSkill_Filed_CN_Map {
   constructor(data = {}) {
     super()
     // 这里做一些数据转换和初始化

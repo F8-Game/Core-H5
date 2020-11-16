@@ -25,7 +25,8 @@ import { defineComponent, ref } from 'vue'
 import user from '@components/User'
 import msg from '@components/Message'
 import scene from '@components/scene'
-
+import WS from '../../util/ws.js'
+new WS()
 export default defineComponent({
   setup() {
     const levalFirst = ref([
