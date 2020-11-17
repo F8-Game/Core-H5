@@ -39,6 +39,8 @@ export default class WS {
     socket = instance
   }
   isReady = false
+  reqId = 0
+  callbacks = {}
 
   // 消息处理分发
   messageHandlers = {
@@ -63,9 +65,6 @@ export default class WS {
   */
   onMessage(event) {
     const messages = Package.decode(event.data)
-    if (messages.type !== 3) {
-      console.log('onMessage', messages)
-    }
     // 根据事件类型分发到对应的处理程序
     this.messageHandlers[messages.type].call(this, messages.body)
   }
@@ -91,7 +90,7 @@ export default class WS {
   * @param {object} data
   * @param {string} type
   */
-  sendMessage(data, route, cb) {
+  sendMessage(data = {}, route, cb) {
     // 分析参数
     if (arguments.length === 2 && typeof route === 'function') {
       cb = route
@@ -116,13 +115,8 @@ export default class WS {
       const reqId = this.reqId++ % 255
       const type = reqId ? Message.TYPE_REQUEST : Message.TYPE_NOTIFY
 
-      // // 设置回调
-      // if ('function' == typeof cb || 'string' == typeof cb) {
-      //     this.callbacks[reqId] = cb;
-      // }
-
-      // // 设置回调路由表
-      // this.callRoutes[reqId] = route;
+      // 设置回调
+      this.callbacks[reqId] = cb
 
       // 将消息打包
       bytes = Message.encode(reqId, type, compressRoute, compressRoute ? routeId : route, bytes)
@@ -134,6 +128,20 @@ export default class WS {
 
     // 发出封包 这里应该有发送失败的处理
     socket.send(packet)
+  }
+
+  /**
+   * 封装发包
+   * @param {string} route 路由
+   * @param {object} data 参数
+   */
+  send(route, data) {
+    return new Promise((resolve) => {
+      this.sendMessage(data, route, (result) => {
+        // 全局业务回包处理
+        resolve(result)
+      })
+    })
   }
 
   /**
@@ -158,7 +166,6 @@ export default class WS {
     if (data) {
       // 解码数据
       data = JSON.parse(Protocol.strdecode(data))
-      console.log('onHandshake', data)
 
       // 报错的话
       if (data.code === RES_OLD_CLIENT) {
@@ -189,8 +196,6 @@ export default class WS {
   * 保持心跳
   */
   onHeartbeat() {
-    console.log('heartbeat', Date.now())
-
     // already in a heartbeat interval
     if (heartbeatId) {
       return
@@ -211,7 +216,11 @@ export default class WS {
     // 解码
     const msg = Message.decode(data)
     msg.body = JSON.parse(Protocol.strdecode(msg.body))
-    // TODO 回调处理
+    if (this.callbacks[msg.id]) {
+      this.callbacks[msg.id](msg.body)
+    } else {
+      console.log('onData: ', msg)
+    }
   }
 
   /**
