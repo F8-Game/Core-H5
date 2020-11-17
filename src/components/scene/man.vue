@@ -1,6 +1,6 @@
 <template>
   <div
-class="man"
+    class="man"
     :style="{
       animationDelay: `${randomNum(0, 6) / 10}s`,
       animationDuration: `${1 * (hpPercent + .5)}s`

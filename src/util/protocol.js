@@ -302,7 +302,7 @@ define(function (exports, require, module) {
     };
 
     var msgHasRoute = function (type) {
-      return type === Message.TYPE_REQUEST || type === Message.TYPE_NOTIFY || type === Message.TYPE_PUSH;
+      return type === Message.TYPE_REQUEST || type === Message.TYPE_NOTIFY || type === Message.TYPE_PUSH || type === Message.TYPE_RESPONSE;
     };
 
     var caculateMsgIdBytes = function (id) {
