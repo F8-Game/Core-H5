@@ -91,7 +91,8 @@ export default defineComponent({
     scene
   },
   mounted() {
-    game.dosomething()
+    game.getUserInfo()
+    game.getUserInfo()
   }
 })
 </script>

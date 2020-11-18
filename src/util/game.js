@@ -3,10 +3,11 @@ import { getToken, removeToken } from './auth.js'
 import { sleep } from './tools'
 import router from '../router/index.js'
 
-let ws
+let ws = null
+let isLogin = false
 
 async function init() {
-  console.log('初始化游戏实例')
+  console.log('初始化ws实例')
   ws = new WS('ws://119.3.236.163:8081')
   bindEvent()
   await sleep(() => ws.isReady)
@@ -18,8 +19,10 @@ async function init() {
     console.log('登录失败，跳转登录页面重登')
     removeToken()
     ws = null
+    isLogin = false
     router.push({ name: 'Login' })
   } else {
+    isLogin = true
     console.log('登录成功')
   }
 }
@@ -34,8 +37,9 @@ function bindEvent() {
 }
 
 const game = {
-  async dosomething() {
-    return 1
+  async getUserInfo() {
+    const result = await ws.send('user.userinfo')
+    console.log(result)
   }
 }
 
@@ -47,6 +51,8 @@ Object.keys(game).map(funcName => {
       if (!ws) {
         await init()
       }
+      // 判断登录状态，防止并发
+      await sleep(() => isLogin)
       return await func(...arguments)
     }
   }
