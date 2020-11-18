@@ -1,37 +1,38 @@
 import WS from './ws.js'
-import { getToken, removeToken } from './auth.js'
+import { removeToken } from './auth.js'
 import { sleep } from './tools'
 import router from '../router/index.js'
+import store from '../store/index.js'
 
 let ws = null
-let isLogin = false
+let initing = false
 
 async function init() {
-  console.log('初始化ws实例')
-  ws = new WS('ws://119.3.236.163:8081')
-  bindEvent()
-  await sleep(() => ws.isReady)
-  console.log('握手成功，心跳正常')
-  console.log('开始登录')
-  const result = await ws.send('login.userLogin', { username: '封andy为土地公', token: getToken() })
-  // 登录验证失败处理
-  if (result.code === 500) {
-    console.log('登录失败，跳转登录页面重登')
-    removeToken()
-    ws = null
-    isLogin = false
-    router.push({ name: 'Login' })
-  } else {
-    isLogin = true
-    console.log('登录成功')
+  if (initing) return
+  if (!store.state.game_addr) {
+    toLogin()
+    throw new Error('ws地址丢失')
   }
+  initing = true
+  console.log('初始化ws实例')
+  ws = new WS(store.state.game_addr)
+  await sleep(() => ws.isReady)
+  bindEvent()
+  initing = false
+}
+
+function toLogin() {
+  removeToken()
+  ws = null
+  initing = false
+  router.push({ name: 'Login' })
 }
 
 function bindEvent() {
   console.log('绑定路由推送事件')
   ws.routePush = {
-    'login.userLogin'(data) {
-      console.log('login.userLogin', data)
+    'login.userinfo'(data) {
+      console.log('login.userinfo', data)
     }
   }
 }
@@ -52,7 +53,7 @@ Object.keys(game).map(funcName => {
         await init()
       }
       // 判断登录状态，防止并发
-      await sleep(() => isLogin)
+      await sleep(() => ws.isReady)
       return await func(...arguments)
     }
   }
