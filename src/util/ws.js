@@ -41,6 +41,7 @@ export default class WS {
   isReady = false
   reqId = 0
   callbacks = {}
+  routePush = {}
 
   // 消息处理分发
   messageHandlers = {
@@ -216,11 +217,18 @@ export default class WS {
     // 解码
     const msg = Message.decode(data)
     msg.body = JSON.parse(Protocol.strdecode(msg.body))
+
+    // 同步回调处理
     if (this.callbacks[msg.id]) {
       this.callbacks[msg.id](msg.body)
-    } else {
-      console.log('onData: ', msg)
     }
+
+    // 路由推送处理
+    // TODO 主动推送消息测试
+    if (this.routePush[msg.route]) {
+      this.routePush[msg.route](msg.body)
+    }
+    console.log('onData: ', msg)
   }
 
   /**
