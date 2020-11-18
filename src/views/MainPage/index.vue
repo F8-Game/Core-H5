@@ -25,7 +25,7 @@ import { defineComponent, ref } from 'vue'
 import user from '@components/User'
 import msg from '@components/Message'
 import scene from '@components/scene'
-import '../../util/game.js'
+import game from '../../util/game.js'
 export default defineComponent({
   setup() {
     const levalFirst = ref([
@@ -91,6 +91,7 @@ export default defineComponent({
     scene
   },
   mounted() {
+    game.dosomething()
   }
 })
 </script>
