@@ -1,5 +1,5 @@
 import Protocol from './protocol'
-import { getToken } from './auth.js'
+import { getToken, toLogin } from './auth.js'
 
 const Package = Protocol.Package
 const Message = Protocol.Message
@@ -47,6 +47,7 @@ export default class WS {
       if (data.code === 500) {
         // TODO 登录验证失败处理
         console.log('TODO 登录失败')
+        toLogin()
       } else {
         console.log('登录成功')
         // 标记已经准备好，可以开始接口调用
@@ -95,6 +96,7 @@ export default class WS {
   * @param {object} event
   */
   onClose(event) {
+    // TODO 断开处理
     console.log('onClose', event)
   }
 
