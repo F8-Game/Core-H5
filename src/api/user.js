@@ -10,7 +10,10 @@ export function login(data) {
 }
 
 export async function getUserInfo() {
-  const result = await game.send('user.userInfo')
-  console.log(result)
-  return result
+  await game.send('user.userInfo')
+}
+
+export async function setAttrPoint(attr = { str: 1, int: 0, con: 0, vit: 0, agi: 0 }) {
+  await game.send('user.attrSave', attr)
+  getUserInfo()
 }

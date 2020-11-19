@@ -27,10 +27,10 @@ export default {
   async send() {
     try {
       if (!ws) {
-        await init()
+        init()
       }
       // 判断登录状态，防止并发
-      await sleep(() => ws.isReady, 2000)
+      await sleep(() => ws.isReady, 3000)
       return await ws.send(...arguments)
     } catch (e) {
       console.error(e)
