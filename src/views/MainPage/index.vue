@@ -28,7 +28,7 @@ import { defineComponent, onMounted, ref } from 'vue'
 import user from '@components/User'
 import msg from '@components/Message'
 import scene from '@components/scene'
-import game from '../../util/game.js'
+import { getUserInfo } from '@/api/user'
 export default defineComponent({
   setup() {
     const levalFirst = ref([
@@ -82,8 +82,7 @@ export default defineComponent({
     const firstDefTab = ref(1)
     const secondDefTab = ref(1)
     onMounted(() => {
-      game.getUserInfo()
-      game.getUserInfo()
+      getUserInfo()
     })
     return {
       levalFirst,

@@ -30,6 +30,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { login } from '@/api/user'
 import { setToken } from '@/util/auth'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 export default defineComponent({
   setup() {
     const loginData = reactive({
@@ -37,9 +38,11 @@ export default defineComponent({
       password: '123456'
     })
     const router = useRouter()
+    const store = useStore()
     const loginStatus = () => {
       login(loginData).then(res => {
         setToken(res.data.token)
+        store.commit('setGameAddr', res.data.server_addr)
         router.push({
           name: 'Main'
         })

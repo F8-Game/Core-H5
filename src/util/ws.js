@@ -1,4 +1,5 @@
 import Protocol from './protocol'
+import { getToken, toLogin } from './auth.js'
 
 const Package = Protocol.Package
 const Message = Protocol.Message
@@ -41,7 +42,19 @@ export default class WS {
   isReady = false
   reqId = 0
   callbacks = {}
-  routePush = {}
+  routePush = {
+    'login.userLogin': (data) => {
+      if (data.code === 500) {
+        // TODO 登录验证失败处理
+        console.log('TODO 登录失败')
+        toLogin()
+      } else {
+        console.log('登录成功')
+        // 标记已经准备好，可以开始接口调用
+        this.isReady = true
+      }
+    }
+  }
 
   // 消息处理分发
   messageHandlers = {
@@ -83,6 +96,7 @@ export default class WS {
   * @param {object} event
   */
   onClose(event) {
+    // TODO 断开处理
     console.log('onClose', event)
   }
 
@@ -189,8 +203,10 @@ export default class WS {
     const packet = Package.encode(Package.TYPE_HANDSHAKE_ACK)
     socket.send(packet)
 
-    // 标记已经准备好，可以开始接口调用
-    this.isReady = true
+    // 直接登录
+    console.log('开始登录')
+    // TODO 对接实际用户名
+    this.send('login.userLogin', { username: '封andy为土地公', token: getToken() })
   }
 
   /**
@@ -224,10 +240,10 @@ export default class WS {
     }
 
     // 路由推送处理
-    // TODO 主动推送消息测试
     if (this.routePush[msg.route]) {
       this.routePush[msg.route](msg.body)
     }
+
     console.log('onData: ', msg)
   }
 
