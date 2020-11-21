@@ -1,6 +1,6 @@
 <template>
   <div>
-    地图
+    召唤兽
   </div>
 </template>
 
