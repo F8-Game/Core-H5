@@ -3,7 +3,7 @@ import router from './router'
 import store from './store'
 import App from './Layout'
 
-import { Button, Form, Input, Row, Col, Menu, Dropdown, Tabs, Select } from 'ant-design-vue'
+import { Button, Form, Input, Row, Col, Menu, Dropdown, Tabs, Select, Progress } from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
 import 'normalize.css/normalize.css'
@@ -22,4 +22,5 @@ app.use(Button)
   .use(Dropdown)
   .use(Tabs)
   .use(Select)
+  .use(Progress)
 app.mount('#app')

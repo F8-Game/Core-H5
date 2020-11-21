@@ -244,7 +244,7 @@ export default class WS {
       this.routePush[msg.route](msg.body)
     }
 
-    console.log('onData: ', msg)
+    // console.log('onData: ', msg)
   }
 
   /**
@@ -253,6 +253,6 @@ export default class WS {
   * @param {*} data
   */
   onKick(data) {
-    console.log('onKick', data)
+    // console.log('onKick', data)
   }
 }
