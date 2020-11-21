@@ -1,6 +1,6 @@
 <template>
   <div>
-    地图
+    修炼技能
   </div>
 </template>
 

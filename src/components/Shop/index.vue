@@ -1,6 +1,6 @@
 <template>
   <div>
-    地图
+    商店
   </div>
 </template>
 

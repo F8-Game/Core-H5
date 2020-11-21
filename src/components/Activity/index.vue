@@ -1,6 +1,6 @@
 <template>
   <div>
-    地图
+    activity
   </div>
 </template>
 
